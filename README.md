@@ -77,8 +77,8 @@ public class Start {
 ```
 这里用到了`JFrame`类，创建了一个窗体，但是目前绘图面板还是空的，需要继续添加元素
 ### 核心代码
-添加一个`gamePanel`类
-其中变量有
+添加一个`gamePanel`类需要用关键字`extends`继承`JPanel`
+#### 1.变量
 ```java
 int length;
 	int[] X = new int[600];			//存储小蛇X
@@ -92,4 +92,103 @@ int length;
 	Random random = new Random();		//随机数用于模拟豆子
 	Timer timer = new Timer(200,this);	//定时器，用于刷新页面，每200ms一次
 ```
+#### 2.键盘监听事件
+由于整个游戏的操作是通过键盘完成的，所以需要监听键盘的事件，我们创建的`gamePanel`类，需要使用关键字	`impliments`实现键盘监听的接口`KeyListener`
+这里我们可以看到对于`KeyListener`接口，是一个接口，给出了键盘监听的三种事件，按下，释放以及点击，其继承了事件监听接口。
+
+这有点类似与`C++`中给出一个抽象类，其字类去具体实现，其中抽象类中不会给出任何具体的方法，字类根据需要去做相应的代码实现。
+```java
+public interface KeyListener extends EventListener {
+
+    public void keyTyped(KeyEvent e);
+
+    public void keyPressed(KeyEvent e);
+
+    public void keyReleased(KeyEvent e);
+}
+```
+
+我们在这里只需要复写`keyTyped`
+```java
+@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		int keyCode = e.getKeyCode();
+		if(keyCode == KeyEvent.VK_SPACE) {	//按键未空格
+			if(isFail) {			//若游戏结束了，则重启游戏
+				isFail = false;		//复位标志位
+				inicial();		//初始化
+			}
+			else {
+			isStart = !isStart;		//将标志位取反，空格用于控制暂停和开始
+			}
+			repaint(); 			//刷新界面
+		}					//监听键盘的四个方向键，并修改对应的小蛇移动方向
+		else if(keyCode == KeyEvent.VK_LEFT && !(forward.equals("right"))) {
+			forward = "left";
+		}
+		else if(keyCode == KeyEvent.VK_RIGHT && !(forward.equals("left"))) {
+			forward = "right";
+		}
+		else if(keyCode == KeyEvent.VK_UP && !(forward.equals("down"))) {
+			forward = "up";
+		}
+		else if(keyCode == KeyEvent.VK_DOWN && !(forward.equals("up"))) {
+			forward = "down";
+		}
+	}
+```
+#### 3.事件处理
+只监听键盘事件并不够，我们需要实时去刷星和渲染页面，所以这里我们需要复写`actionPerformed`,所以我们创建的`gamePanel`类需要使用关键字`impliments`实现`ActionListener`接口
+```java
+@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if(isStart && !isFail) {				//游戏开始
+			for(int i = length - 1; i > 0; i--) {		//小蛇身体依次前进
+				X[i] = X[i-1];
+				Y[i] = Y[i-1];
+			}						//接下来判断头部的方向，并对边界处理
+			if(forward.equals("right")) {
+				X[0] = X[0] + 25;
+				if(X[0]>850) {
+					X[0] = 25;
+				}
+			}
+			else if(forward.equals("left")) {
+				X[0] = X[0] - 25;
+				if(X[0] < 25) {
+					X[0] = 850;
+				}
+			}
+			else if(forward.equals("up")) {
+				Y[0] = Y[0] - 25;
+				if(Y[0] < 75) {
+					Y[0] = 650;
+				}
+			}
+			else if(forward.equals("down")){
+				Y[0] = Y[0] + 25;
+				if(Y[0] > 650) {
+					Y[0] = 75;
+				}
+			}
+			if(X[0] == foodX && Y[0] ==foodY) {		//判断是否吃到食物
+				length = length + 1;
+				score = score + (foodX)/100 + (foodY)/100 + length;
+				foodX = 25 + 25 * random.nextInt(34);
+				foodY = 75 + 25 * random.nextInt(24);
+			}
+			//check
+			for(int i = 1;i<length;i++) {			//判断是否撞到自己身体，游戏失败
+				if(X[0] == X[i] && Y[0] == Y[i]) {
+					isFail =true;
+					break;
+				}
+			}
+			repaint();					//重新渲染画面
+		}
+	}
+```
+#### 4.渲染页面
 # To be continue ...
