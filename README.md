@@ -1,8 +1,8 @@
 # Greedy-snake
-java编写一个贪吃蛇小游戏(本示例参考了最后的视频链接)
+java编写一个贪吃蛇小游戏[(本示例参考了最后的视频链接)](https://www.bilibili.com/video/BV1HE41127CV?p=2&rt=V%2FymTlOu4ow%2Fy4xxNWPUZ9svl%2BOiBwHIWoOLY38q0NQ%3D)
 ### 效果展示
 ![](https://github.com/djh-sudo/Greedy-snake/blob/main/demo.gif)
-[参考视频](https://www.bilibili.com/video/BV1HE41127CV?p=2&rt=V%2FymTlOu4ow%2Fy4xxNWPUZ9svl%2BOiBwHIWoOLY38q0NQ%3D)
+
 ### 思路
 首先要明确一点，图像之所以能够不断移动，是因为屏幕在不断刷新，当频率达到一定程度时，我们由于视觉暂留，会认为图像是一个流畅的播放过程。
 这里根据原作者思路，将整个页面划分为大小为`25 x 25`的网格，小蛇移动的范围在`(25,75)->(850,600)`
@@ -191,4 +191,73 @@ public interface KeyListener extends EventListener {
 	}
 ```
 #### 4.渲染页面
-# To be continue ...
+```java
+@Override
+	protected void paintComponent(Graphics g) {
+		// TODO Auto-generated method stub
+		super.paintComponent(g);					//画笔
+		this.setBackground(Color.gray);					//设置背景颜色
+		Data.headerImgIcon.paintIcon(this, g, 25, 10);			//放置头部照片
+		g.fillRect(25, 75, 850, 600);					//绘制一个矩形(rectangle)
+		if(forward.equals("right")) {					//头部向右，则画一个右侧的头，下同
+			Data.rightImgIcon.paintIcon(this, g, X[0], Y[0]);
+		}
+		else if(forward.equals("left")) {
+			Data.leftImgIcon.paintIcon(this, g, X[0], Y[0]);
+
+		}
+		else if(forward.equals("up")) {
+			Data.upImgIcon.paintIcon(this, g, X[0], Y[0]);
+		}
+		else if(forward.equals("down")) {
+			Data.downImgIcon.paintIcon(this, g, X[0], Y[0]);
+		}
+
+		for(int i=1;i<length;i++) {					//绘制身体
+			Data.bodyImgIcon.paintIcon(this, g, X[i], Y[i]);
+		}
+		Data.foodImgIcon.paintIcon(this, g, foodX, foodY);
+
+		if(isStart == false) {						//判断游戏是否开始
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("SimHei",Font.BOLD,30));
+			g.drawString("press Space to start the game!", 200, 300);
+		}
+		if (isFail == true){						//判断游戏是否结束
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("SimHei",Font.BOLD,30));
+			g.drawString("Game Over!", 300, 300);
+		}
+		g.setColor(Color.GREEN);					//绘制得分和长度
+		g.setFont(new Font("SimHei",Font.BOLD,18));
+		g.drawString("length: "+ length, 750, 25);
+		g.drawString("score: "+ score, 750, 50);
+	}
+```
+每次`repaint()`函数会自动去调用上述函数，实现页面的刷新。
+#### 5.Last
+最后一步，我们只需要对构造方法，对变量进行初始化即可
+```java
+	public void inicial() {
+		length = 3;				//默认小蛇长度为3
+		score = 0;
+		X[0] = 100; Y[0] = 100;			//初始小蛇的位置
+		X[1] = 75; Y[1] = 100;
+		X[2] = 50; Y[2] = 100;
+		forward = "right";
+		isStart = false;
+		isFail = false;
+		foodX = 25 + 25*random.nextInt(34);
+		foodY = 75+25*random.nextInt(24);
+	}
+
+	public gamePanel() {
+		inicial();
+		this.setFocusable(true);		//允许聚焦于本窗口
+		this.addKeyListener(this);		//开启监听
+		timer.start();				//定时器计时开始
+	}
+```
+# Thanks for watching ...
+# Reference 
+[参考视频](https://www.bilibili.com/video/BV1HE41127CV?p=2&rt=V%2FymTlOu4ow%2Fy4xxNWPUZ9svl%2BOiBwHIWoOLY38q0NQ%3D)
